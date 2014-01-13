@@ -285,10 +285,11 @@ void plan_buffer_line(float *target, float feed_rate, uint8_t invert_feed_rate)
   // TODO: After this for-loop, we don't touch the stepper algorithm data. Might be a good idea
   // to try to keep these types of things completely separate from the planner for portability.
   int32_t target_steps[N_AXIS];
-  float unit_vec[N_AXIS], delta_mm;
+  float unit_vec[N_AXIS];
+  uint8_t idx;
 
 #ifndef COREXY
-  uint8_t idx;
+  float delta_mm;
   for (idx=0; idx<N_AXIS; idx++) {
     // Calculate target position in absolute steps. This conversion should be consistent throughout.
     target_steps[idx] = lround(target[idx]*settings.steps_per_mm[idx]);
