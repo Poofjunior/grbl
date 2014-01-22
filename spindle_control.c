@@ -77,7 +77,7 @@ void spindle_run(uint8_t direction, float rpm)
     #ifdef VARIABLE_SPINDLE
       #define SPINDLE_RPM_RANGE (SPINDLE_MAX_RPM-SPINDLE_MIN_RPM)
       TCCRA_REGISTER = (1<<COMB_BIT) | (1<<WAVE1_REGISTER) | (1<<WAVE0_REGISTER);
-      TCCRB_REGISTER = (TCCRB_REGISTER & 0b11111000) | 0x02; // set to 1/8 Prescaler
+      TCCRB_REGISTER = (TCCRB_REGISTER & 0b11111000) | 0x07; // set to 1/8 Prescaler
       rpm -= SPINDLE_MIN_RPM;
       if ( rpm > SPINDLE_RPM_RANGE ) { rpm = SPINDLE_RPM_RANGE; } // Prevent uint8 overflow
       uint8_t current_pwm = floor( rpm*(255.0/SPINDLE_RPM_RANGE) + 0.5);

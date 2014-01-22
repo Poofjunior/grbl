@@ -32,7 +32,7 @@
 #define DEFAULTS_SHERLINE_5400
 
 // Serial baud rate
-#define BAUD_RATE 115200
+#define BAUD_RATE 9600
 
 // Default cpu mappings. Grbl officially supports the Arduino Uno only. Other processor types
 // may exist from user-supplied templates or directly user-defined in cpu_map.h
@@ -107,7 +107,7 @@
 // enable pin will output 5V for maximum RPM with 256 intermediate levels and 0V when disabled.
 // NOTE: IMPORTANT for Arduino Unos! When enabled, the Z-limit pin D11 and spindle enable pin D12 switch!
 // The hardware PWM output on pin D11 is required for variable spindle output voltages.
-// #define VARIABLE_SPINDLE // Default disabled. Uncomment to enable.
+#define VARIABLE_SPINDLE // Default disabled. Uncomment to enable.
 
 // Use by the variable spindle output only. These parameters set the maximum and minimum spindle speed
 // "S" g-code values to correspond to the maximum and minimum pin voltages. There are 256 discrete and 
@@ -119,7 +119,7 @@
 
 //Enable CoreXY kinematics
 //http://corexy.com
-//#define COREXY // Default disabled. Uncomment to enable.
+#define COREXY // Default disabled. Uncomment to enable.
 
 // Minimum planner junction speed. Sets the default minimum junction speed the planner plans to at
 // every buffer block junction, except for starting from rest and end of the buffer, which are always

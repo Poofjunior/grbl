@@ -310,29 +310,37 @@ void plan_buffer_line(float *target, float feed_rate, uint8_t invert_feed_rate)
     block->millimeters += delta_mm*delta_mm;
   }
 #else
+
+  float x=target[X_AXIS], y=target[Y_AXIS], z=target[Z_AXIS];
+  float x_steps=0, y_steps=0, z_steps=0;
+
   // Calculate target position in absolute steps. This conversion should be consistent throughout.
-  target_steps[X_AXIS] = lround(target[X_AXIS]*settings.steps_per_mm[X_AXIS]);
-  target_steps[Y_AXIS] = lround(target[Y_AXIS]*settings.steps_per_mm[Y_AXIS]);
-  target_steps[Z_AXIS] = lround(target[Z_AXIS]*settings.steps_per_mm[Z_AXIS]);
+  target_steps[X_AXIS] = lround(x*settings.steps_per_mm[X_AXIS]);
+  target_steps[Y_AXIS] = lround(y*settings.steps_per_mm[Y_AXIS]);
+  target_steps[Z_AXIS] = lround(z*settings.steps_per_mm[Z_AXIS]);
+
+  x_steps = (target_steps[X_AXIS] - pl.position[X_AXIS]) + (target_steps[Y_AXIS] - pl.position[Y_AXIS]);
+  y_steps = (target_steps[X_AXIS] - pl.position[X_AXIS]) - (target_steps[Y_AXIS] - pl.position[Y_AXIS]);
+  z_steps = target_steps[Z_AXIS]-pl.position[Z_AXIS];
 
   // Number of steps for each axis and determine max step events
   // corexy planning
   // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
-  block->steps[X_AXIS] = labs((target_steps[X_AXIS]-pl.position[X_AXIS]) + (target_steps[Y_AXIS]-pl.position[Y_AXIS]));
-  block->steps[Y_AXIS] = labs((target_steps[X_AXIS]-pl.position[X_AXIS]) - (target_steps[Y_AXIS]-pl.position[Y_AXIS]));
-  block->steps[Z_AXIS] = labs(target_steps[Z_AXIS]-pl.position[Z_AXIS]);
+  block->steps[X_AXIS] = labs(x_steps);
+  block->steps[Y_AXIS] = labs(y_steps);
+  block->steps[Z_AXIS] = labs(z_steps);
   block->step_event_count = max(block->steps[X_AXIS], max(block->steps[Y_AXIS],block->steps[Z_AXIS]));
 
   // Compute individual axes distance for move and prep unit vector calculations.
   // NOTE: Computes true distance from converted step values.
-  unit_vec[X_AXIS] = ((target_steps[X_AXIS] - pl.position[X_AXIS]) + (target_steps[Y_AXIS] - pl.position[Y_AXIS]))/settings.steps_per_mm[X_AXIS]; // Store unit vector numerator. Denominator computed later.
-  unit_vec[Y_AXIS] = ((target_steps[X_AXIS] - pl.position[X_AXIS]) - (target_steps[Y_AXIS] - pl.position[Y_AXIS]))/settings.steps_per_mm[Y_AXIS];
-  unit_vec[Z_AXIS] = (target_steps[Z_AXIS] - pl.position[Z_AXIS])/settings.steps_per_mm[Z_AXIS];
+  unit_vec[X_AXIS] = x_steps/settings.steps_per_mm[X_AXIS]; // Store unit vector numerator. Denominator computed later.
+  unit_vec[Y_AXIS] = y_steps/settings.steps_per_mm[Y_AXIS];
+  unit_vec[Z_AXIS] = z_steps/settings.steps_per_mm[Z_AXIS];
 
   // Set direction bits. Bit enabled always means direction is negative.
-  if (unit_vec[X_AXIS] < 0) { block->direction_bits |= get_direction_mask(X_AXIS); }
-  if (unit_vec[Y_AXIS] < 0) { block->direction_bits |= get_direction_mask(Y_AXIS); }
-  if (unit_vec[Z_AXIS] < 0) { block->direction_bits |= get_direction_mask(Z_AXIS); }
+  if (x_steps < 0) { block->direction_bits |= get_direction_mask(X_AXIS); }
+  if (y_steps < 0) { block->direction_bits |= get_direction_mask(Y_AXIS); }
+  if (z_steps < 0) { block->direction_bits |= get_direction_mask(Z_AXIS); }
     
   // Compute total move distance by Euclidean norm. First add square of each term.
   block->millimeters = unit_vec[X_AXIS]*unit_vec[X_AXIS] + unit_vec[Y_AXIS]*unit_vec[Y_AXIS] + unit_vec[Z_AXIS]*unit_vec[Z_AXIS];
